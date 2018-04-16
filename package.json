@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "main": "index.js",
   "author": "Justin Tormey <jrtormey@gmail.com>",
+  "scripts": {
+    "start": "webpack-cli -w",
+    "build": "webpack-cli"
+  },
   "standard": {
     "parser": "babel-eslint"
   },
