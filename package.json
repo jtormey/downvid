@@ -4,6 +4,7 @@
   "main": "index.js",
   "author": "Justin Tormey <jrtormey@gmail.com>",
   "scripts": {
+    "serve": "node src",
     "start": "webpack-cli -w",
     "build": "webpack-cli"
   },

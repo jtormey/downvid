@@ -1,0 +1,141 @@
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Concept</title>
+  </head>
+  <body>
+    <h1>Feasability of Downvid</h1>
+
+    <h2>Concept 1: Download YT vid from server</h2>
+
+    <button onclick='concept1()'>Download</button>
+
+    <video id="vid" controls>
+      <source type="video/mp4">
+    </video>
+
+    <h2>Concept 2: Save YT vid to browser file system</h2>
+
+    <button onclick='concept2()'>Download</button>
+
+    <h2>Concept 3: List vids saved in file system</h2>
+
+    <button onclick='concept3()'>List files</button>
+
+    <ul id="list"></ul>
+
+    <h2>Concept 4: Play video from file system</h2>
+
+    <button onclick='concept4()'>Play from FS</button>
+
+    <video id="vid2" controls>
+      <source type="video/mp4">
+    </video>
+
+    <script type="text/javascript">
+      async function concept2 () {
+        let res = await fetch('http://localhost:8081/download')
+        let blob = await res.blob()
+        let $vid = document.getElementById('vid')
+        $vid.src = URL.createObjectURL(blob)
+        $vid.load()
+      }
+
+      function concept2 () {
+        function onError () {
+          console.log('error occurred')
+        }
+
+        function onFileSystemInit (fs) {
+          fs.root.getFile('vid3.mp4', { create: true, exclusive: true }, function (fileEntry) {
+            fileEntry.createWriter(async function(fileWriter) {
+              fileWriter.onwriteend = function (e) { console.log('write completed') }
+              fileWriter.onerror = onError
+              let res = await fetch('http://localhost:8081/download')
+              let blob = await res.blob()
+              fileWriter.write(blob)
+            }, onError)
+          }, onError)
+        }
+
+        window.webkitRequestFileSystem(
+          window.TEMPORARY /* use PERSISTENT in the future, will need to ask for a quota */,
+          1024 * 1024 /* size bytes */,
+          onFileSystemInit,
+          onError
+        )
+      }
+
+      function concept3 () {
+        function toArray (list) {
+          return Array.prototype.slice.call(list || [], 0)
+        }
+
+        function onError () {
+          console.log('error occurred')
+        }
+
+        function onFileSystemInit (fs) {
+          let dirReader = fs.root.createReader()
+          let entries = []
+
+          let listResults = (results) => {
+            let $list = document.getElementById('list')
+            $list.innerHTML = ''
+
+            results.forEach((result) => {
+              $list.innerHTML += `<li>${result.name}</li>`
+            })
+          }
+
+          let readEntries = function() {
+            dirReader.readEntries((results) => {
+              if (!results.length) {
+                listResults(entries.sort())
+              } else {
+                entries = entries.concat(toArray(results))
+                readEntries()
+              }
+            }, onError)
+          }
+
+          readEntries()
+        }
+
+        window.webkitRequestFileSystem(
+          window.TEMPORARY /* use PERSISTENT in the future, will need to ask for a quota */,
+          1024 * 1024 /* size bytes */,
+          onFileSystemInit,
+          onError
+        )
+      }
+
+      function concept4 () {
+        function onError () {
+          console.log('error occurred')
+        }
+
+        function onFileSystemInit (fs) {
+          fs.root.getFile('vid3.mp4', {}, function (fileEntry) {
+            fileEntry.file(function(file) {
+              let reader = new FileReader()
+              reader.onloadend = function (e) {
+                let $vid = document.getElementById('vid2')
+                $vid.src = this.result
+                $vid.load()
+              }
+              reader.readAsDataURL(file)
+            }, onError)
+          }, onError)
+        }
+
+        window.webkitRequestFileSystem(
+          window.TEMPORARY /* use PERSISTENT in the future, will need to ask for a quota */,
+          1024 * 1024 /* size bytes */,
+          onFileSystemInit,
+          onError
+        )
+      }
+    </script>
+  </body>
+</html>
