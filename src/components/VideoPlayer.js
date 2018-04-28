@@ -16,6 +16,14 @@ const vidWrapperStyle = {
 }
 
 class VideoPlayer extends React.Component {
+  videoRef = React.createRef()
+
+  componentDidUpdate () {
+    if (this.props.src && this.videoRef.current && this.videoRef.current.paused) {
+      this.videoRef.current.play()
+    }
+  }
+
   render () {
     let { src, onClose } = this.props
     return (
@@ -23,7 +31,7 @@ class VideoPlayer extends React.Component {
         <Modal isOpen={src != null} toggle={onClose} />
         {src != null && (
           <div style={vidWrapperStyle} onClick={onClose}>
-            <video controls style={{ height: '90%' }}>
+            <video ref={this.videoRef} controls style={{ height: '90%' }}>
               <source src={src} type='video/mp4' />
             </video>
           </div>
