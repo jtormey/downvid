@@ -9,7 +9,12 @@
     "build": "webpack-cli"
   },
   "standard": {
-    "parser": "babel-eslint"
+    "parser": "babel-eslint",
+    "globals": [
+      "fetch",
+      "FileReader",
+      "webkitRequestFileSystem"
+    ]
   },
   "dependencies": {
     "bootstrap": "^4.1.0",
