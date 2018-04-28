@@ -1,7 +1,8 @@
 import React from 'react'
-import { Container, Row, Col, InputGroup, InputGroupAddon, Input, Button } from 'reactstrap'
+import { Container, Row, Col } from 'reactstrap'
 import { fetchMeta } from '../network'
 import { requestFs, readFile, rmFile } from '../fs'
+import Header from './Header'
 import VideoCard from './VideoCard'
 import VideoPlayer from './VideoPlayer'
 
@@ -9,7 +10,6 @@ const LS_KEY = 'downvid-library'
 
 class App extends React.Component {
   state = {
-    linkInput: '',
     library: [],
     vidsrc: null
   }
@@ -17,16 +17,10 @@ class App extends React.Component {
   componentDidMount = async () => {
     this.fs = await requestFs()
     let library = JSON.parse(localStorage.getItem(LS_KEY) || '[]')
-    this.setState({ library })
+    this.mapLib(() => library)
   }
 
-  handleInput = (event) => {
-    this.setState({ linkInput: event.target.value })
-  }
-
-  handleSave = async () => {
-    let vid = this.state.linkInput
-    this.setState({ linkInput: '' })
+  handleSubmit = async (vid) => {
     let meta = await fetchMeta(vid)
     this.mapLib((library) => [meta, ...this.state.library])
   }
@@ -56,20 +50,7 @@ class App extends React.Component {
     return (
       <Container>
         <Row style={{ marginTop: 16 }}>
-          <Col md={6}>
-            <h1>Downvid</h1>
-          </Col>
-          <Col md={6} style={{ display: 'flex', alignItems: 'center' }}>
-            <InputGroup>
-              <InputGroupAddon addonType='prepend'>
-                https://youtube.com/watch?v=
-              </InputGroupAddon>
-              <Input value={this.state.linkInput} onChange={this.handleInput} />
-              <InputGroupAddon addonType='append'>
-                <Button color='primary' onClick={this.handleSave}>Save Vid</Button>
-              </InputGroupAddon>
-            </InputGroup>
-          </Col>
+          <Header onSubmit={this.handleSubmit} />
         </Row>
         <Row style={{ marginTop: 32 }}>
           {this.state.library.map((entry) => (
