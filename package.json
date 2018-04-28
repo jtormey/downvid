@@ -13,7 +13,9 @@
     "globals": [
       "fetch",
       "localStorage",
+      "Blob",
       "URL",
+      "XMLHttpRequest",
       "webkitRequestFileSystem"
     ]
   },

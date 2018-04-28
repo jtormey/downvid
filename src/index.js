@@ -11,6 +11,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
   res.header('Access-Control-Allow-Method', '*')
   res.header('Access-Control-Allow-Header', '*')
+  res.header('Access-Control-Expose-Headers', 'Content-Length')
 
   if (req.method === 'OPTIONS') {
     res.status(200).end()
@@ -37,7 +38,14 @@ app.get('/meta', (req, res) => {
 })
 
 app.get('/download', (req, res) => {
-  ytdl(createYtUrl(req.query.vid)).pipe(res)
+  let stream = ytdl(createYtUrl(req.query.vid))
+
+  let writeContentLengthHeader = (chunkLength, progress, total) => {
+    res.header('Content-Length', total)
+    stream.pipe(res)
+  }
+
+  stream.once('progress', writeContentLengthHeader)
 })
 
 app.listen(PORT, () => {

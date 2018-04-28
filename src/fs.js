@@ -33,6 +33,22 @@ export const writeFile = (fs, name, data) => new Promise((resolve, reject) => {
   }, reject)
 })
 
+export const createFileWriter = (fs, name) => new Promise((resolve, reject) => {
+  fs.root.getFile(name, { create: true, exclusive: true }, (fileEntry) => {
+    fileEntry.createWriter((fileWriter) => {
+      resolve({
+        write (data) {
+          return new Promise((resolve) => {
+            fileWriter.onwriteend = () => resolve()
+            fileWriter.onerror = (error) => reject(error)
+            fileWriter.write(data)
+          })
+        }
+      })
+    }, reject)
+  }, reject)
+})
+
 export const readFile = (fs, name) => new Promise((resolve, reject) => {
   fs.root.getFile(name, {}, (fileEntry) => {
     fileEntry.file((file) => {

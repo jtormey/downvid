@@ -3,7 +3,7 @@ export const fetchMeta = (vid) => (
 )
 
 export const download = (vid) => (
-  fetch(`http://localhost:8081/download?vid=${vid}`).then(res => res.blob())
+  fetch(`http://localhost:8081/download?vid=${vid}`)
 )
 
 export const downloadImg = (url) => (

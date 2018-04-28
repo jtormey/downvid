@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import React from 'react'
 import { Modal, Container, Row, Col, InputGroup, InputGroupAddon, Input, Button, Card, CardBody, CardImg, CardTitle, CardSubtitle } from 'reactstrap'
 import { download, fetchMeta } from '../network'
-import { requestFs, writeFile, readFile, rmFile } from '../fs'
+import { requestFs, readFile, rmFile, createFileWriter } from '../fs'
 
 const LS_KEY = 'downvid-library'
 
@@ -40,7 +40,8 @@ class App extends React.Component {
     library: [],
     playing: false,
     vidsrc: null,
-    downloading: false
+    downloading: false,
+    progress: 0
   }
 
   componentDidMount = async () => {
@@ -63,8 +64,35 @@ class App extends React.Component {
     this.setState({ linkInput: '', downloading: true })
     let meta = await fetchMeta(vid)
     this.mapLib((library) => [meta, ...this.state.library])
-    let mp4 = await download(vid)
-    await writeFile(this.fs, `${vid}.mp4`, mp4)
+
+    let res = await download(vid)
+    let writer = await createFileWriter(this.fs, `${vid}.mp4`)
+
+    let pipe = (r, w, totalLength, progress) => {
+      let pipeInner = (accLength) => {
+        progress(accLength / totalLength)
+        return r.read().then(({ done, value }) => {
+          if (done) {
+            progress(1)
+            return Promise.resolve()
+          } else {
+            return w.write(new Blob([value])).then(() => (
+              pipeInner(accLength + value.length)
+            ))
+          }
+        })
+      }
+
+      return pipeInner(0)
+    }
+
+    await pipe(
+      res.body.getReader(),
+      writer,
+      parseInt(res.headers.get('Content-Length')),
+      (progress) => this.setState({ progress })
+    )
+
     this.setState({ downloading: false })
   }
 
@@ -119,6 +147,7 @@ class App extends React.Component {
                 <CardBody>
                   <CardTitle>{entry.title}</CardTitle>
                   <CardSubtitle>{entry.author.name}</CardSubtitle>
+                  <h3>Progress: {Math.round(this.state.progress * 100)}%</h3>
                   <div style={{ marginTop: 16 }}>
                     <Button color='primary' block onClick={() => this.playVideo(entry.vid)}>Play</Button>
                     <Button color='secondary' block onClick={() => this.deleteVideo(entry.vid)}>Delete</Button>
