@@ -23,7 +23,7 @@ app.use((req, res, next) => {
 app.get('/meta', (req, res) => {
   ytdl.getInfo(createYtUrl(req.query.vid)).then((meta) => {
     res.status(200).json({
-      vid: meta.vid,
+      vid: meta.video_url.split('watch?v=')[1],
       url: meta.video_url,
       title: meta.title,
       length: meta.length_seconds,
