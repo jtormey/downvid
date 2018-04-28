@@ -42,3 +42,9 @@ export const readFile = (fs, name) => new Promise((resolve, reject) => {
     }, reject)
   }, reject)
 })
+
+export const rmFile = (fs, name) => new Promise((resolve, reject) => {
+  fs.root.getFile(name, { create: false }, (fileEntry) => {
+    fileEntry.remove(() => resolve(), reject)
+  }, reject)
+})

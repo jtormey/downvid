@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import React from 'react'
 import { Modal, Container, Row, Col, InputGroup, InputGroupAddon, Input, Button, Card, CardBody, CardImg, CardTitle } from 'reactstrap'
 import { download } from '../network'
-import { requestFs, readDir, writeFile, readFile } from '../fs'
+import { requestFs, readDir, writeFile, readFile, rmFile } from '../fs'
 
 const vidWrapperStyle = {
   position: 'absolute',
@@ -54,6 +54,11 @@ class App extends React.Component {
     this.setState({ playing: true, vidsrc })
   }
 
+  deleteVideo = async (name) => {
+    await rmFile(this.fs, name)
+    await this.listEntries()
+  }
+
   closePlayer = () => {
     this.setState({ playing: false })
   }
@@ -84,6 +89,7 @@ class App extends React.Component {
                 <CardBody>
                   <CardTitle>{entry.name}</CardTitle>
                   <Button color='primary' block onClick={() => this.playVideo(entry.name)}>Play</Button>
+                  <Button color='secondary' block onClick={() => this.deleteVideo(entry.name)}>Delete</Button>
                 </CardBody>
               </Card>
             </Col>
