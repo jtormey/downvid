@@ -12,6 +12,7 @@
     "parser": "babel-eslint",
     "globals": [
       "fetch",
+      "localStorage",
       "URL",
       "webkitRequestFileSystem"
     ]

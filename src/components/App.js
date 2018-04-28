@@ -1,9 +1,13 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import React from 'react'
-import { Modal, Container, Row, Col, InputGroup, InputGroupAddon, Input, Button, Card, CardBody, CardImg, CardTitle } from 'reactstrap'
-import { download } from '../network'
-import { requestFs, readDir, writeFile, readFile, rmFile } from '../fs'
+import { Modal, Container, Row, Col, InputGroup, InputGroupAddon, Input, Button, Card, CardBody, CardImg, CardTitle, CardSubtitle } from 'reactstrap'
+import { download, fetchMeta } from '../network'
+import { requestFs, writeFile, readFile, rmFile } from '../fs'
+
+const LS_KEY = 'downvid-library'
+
+const renderTime = (sec) => `${Math.floor(sec / 60)}:${sec % 60}`
 
 const vidWrapperStyle = {
   position: 'absolute',
@@ -19,17 +23,35 @@ const vidWrapperStyle = {
   justifyContent: 'center'
 }
 
+const vidTimeTag = {
+  position: 'absolute',
+  right: 0,
+  bottom: 0,
+  margin: 4,
+  padding: '0px 4px',
+  opacity: 0.8,
+  color: 'hsl(0, 0%, 100%)',
+  background: 'hsl(0, 0%, 6.7%)'
+}
+
 class App extends React.Component {
   state = {
     linkInput: '',
-    entries: [],
+    library: [],
     playing: false,
-    vidsrc: null
+    vidsrc: null,
+    downloading: false
   }
 
   componentDidMount = async () => {
     this.fs = await requestFs()
-    await this.listEntries()
+    let library = JSON.parse(localStorage.getItem(LS_KEY) || '[]')
+    this.setState({ library })
+    window.onbeforeunload = () => this.state.downloading || null
+  }
+
+  componentWillUnmount = () => {
+    window.onbeforeunload = () => null
   }
 
   handleInput = (event) => {
@@ -37,31 +59,34 @@ class App extends React.Component {
   }
 
   handleSave = async () => {
-    let input = this.state.linkInput
-    this.setState({ linkInput: '' })
-    let mp4 = await download(input)
-    await writeFile(this.fs, `${input}.mp4`, mp4)
-    await this.listEntries()
+    let vid = this.state.linkInput
+    this.setState({ linkInput: '', downloading: true })
+    let meta = await fetchMeta(vid)
+    this.mapLib((library) => [meta, ...this.state.library])
+    let mp4 = await download(vid)
+    await writeFile(this.fs, `${vid}.mp4`, mp4)
+    this.setState({ downloading: false })
   }
 
-  listEntries = async () => {
-    let entries = await readDir(this.fs)
-    this.setState({ entries })
-  }
-
-  playVideo = async (name) => {
-    let file = await readFile(this.fs, name)
+  playVideo = async (vid) => {
+    let file = await readFile(this.fs, `${vid}.mp4`)
     let vidsrc = URL.createObjectURL(file)
     this.setState({ playing: true, vidsrc })
   }
 
-  deleteVideo = async (name) => {
-    await rmFile(this.fs, name)
-    await this.listEntries()
+  deleteVideo = async (vid) => {
+    this.mapLib((library) => library.filter((entry) => entry.vid !== vid))
+    await rmFile(this.fs, `${vid}.mp4`)
   }
 
   closePlayer = () => {
     this.setState({ playing: false })
+  }
+
+  mapLib = (f) => {
+    let library = f(this.state.library)
+    this.setState({ library })
+    localStorage.setItem(LS_KEY, JSON.stringify(library))
   }
 
   render () {
@@ -83,14 +108,20 @@ class App extends React.Component {
           </Col>
         </Row>
         <Row style={{ marginTop: 32 }}>
-          {this.state.entries.map((entry) => (
-            <Col key={entry.fullPath} md={3} style={{ marginBottom: 32 }}>
+          {this.state.library.map((entry) => (
+            <Col key={entry.vid} md={4} sm={12} style={{ marginBottom: 32 }}>
               <Card>
-                <CardImg top width='100%' src='https://placeholdit.imgix.net/~text?txtsize=33&txt=318%C3%97180&w=318&h=180' alt='Card image cap' />
+                <div style={{ position: 'relative' }}>
+                  <CardImg top src={entry.thumbnail.url} width={entry.thumbnail.width} height={entry.thumbnail.height} />
+                  <div style={vidTimeTag}><span>{renderTime(entry.length)}</span></div>
+                </div>
                 <CardBody>
-                  <CardTitle>{entry.name}</CardTitle>
-                  <Button color='primary' block onClick={() => this.playVideo(entry.name)}>Play</Button>
-                  <Button color='secondary' block onClick={() => this.deleteVideo(entry.name)}>Delete</Button>
+                  <CardTitle>{entry.title}</CardTitle>
+                  <CardSubtitle>{entry.author.name}</CardSubtitle>
+                  <div style={{ marginTop: 16 }}>
+                    <Button color='primary' block onClick={() => this.playVideo(entry.vid)}>Play</Button>
+                    <Button color='secondary' block onClick={() => this.deleteVideo(entry.vid)}>Delete</Button>
+                  </div>
                 </CardBody>
               </Card>
             </Col>
