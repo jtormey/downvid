@@ -36,9 +36,7 @@ export const writeFile = (fs, name, data) => new Promise((resolve, reject) => {
 export const readFile = (fs, name) => new Promise((resolve, reject) => {
   fs.root.getFile(name, {}, (fileEntry) => {
     fileEntry.file((file) => {
-      let reader = new FileReader()
-      reader.onloadend = function () { resolve(this.result) }
-      reader.readAsDataURL(file)
+      resolve(file)
     }, reject)
   }, reject)
 })

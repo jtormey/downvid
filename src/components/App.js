@@ -50,7 +50,8 @@ class App extends React.Component {
   }
 
   playVideo = async (name) => {
-    let vidsrc = await readFile(this.fs, name)
+    let file = await readFile(this.fs, name)
+    let vidsrc = URL.createObjectURL(file)
     this.setState({ playing: true, vidsrc })
   }
 
