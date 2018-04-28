@@ -1,32 +1,18 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import React from 'react'
-import { Modal, Container, Row, Col, InputGroup, InputGroupAddon, Input, Button } from 'reactstrap'
+import { Container, Row, Col, InputGroup, InputGroupAddon, Input, Button } from 'reactstrap'
 import { fetchMeta } from '../network'
 import { requestFs, readFile, rmFile } from '../fs'
 import VideoCard from './VideoCard'
+import VideoPlayer from './VideoPlayer'
 
 const LS_KEY = 'downvid-library'
-
-const vidWrapperStyle = {
-  position: 'absolute',
-  zIndex: 100000000,
-  top: 0,
-  bottom: 0,
-  left: 0,
-  right: 0,
-  width: '100%',
-  height: '100%',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center'
-}
 
 class App extends React.Component {
   state = {
     linkInput: '',
     library: [],
-    playing: false,
     vidsrc: null
   }
 
@@ -50,7 +36,7 @@ class App extends React.Component {
   playVideo = async (vid) => {
     let file = await readFile(this.fs, `${vid}.mp4`)
     let vidsrc = URL.createObjectURL(file)
-    this.setState({ playing: true, vidsrc })
+    this.setState({ vidsrc })
   }
 
   deleteVideo = async (vid) => {
@@ -59,7 +45,7 @@ class App extends React.Component {
   }
 
   closePlayer = () => {
-    this.setState({ playing: false })
+    this.setState({ vidsrc: null })
   }
 
   mapLib = (f) => {
@@ -94,14 +80,7 @@ class App extends React.Component {
             </Col>
           ))}
         </Row>
-        <Modal isOpen={this.state.playing} toggle={this.closePlayer} />
-        {this.state.playing && (
-          <div style={vidWrapperStyle} onClick={this.closePlayer}>
-            <video controls style={{ height: '90%' }}>
-              <source src={this.state.vidsrc} type='video/mp4' />
-            </video>
-          </div>
-        )}
+        <VideoPlayer src={this.state.vidsrc} onClose={this.closePlayer} />
       </Container>
     )
   }
