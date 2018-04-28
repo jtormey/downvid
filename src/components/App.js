@@ -92,14 +92,15 @@ class App extends React.Component {
   render () {
     return (
       <Container>
-        <Row>
-          <Col md={12}>
+        <Row style={{ marginTop: 16 }}>
+          <Col md={6}>
             <h1>Downvid</h1>
           </Col>
-        </Row>
-        <Row>
-          <Col md={12}>
+          <Col md={6} style={{ display: 'flex', alignItems: 'center' }}>
             <InputGroup>
+              <InputGroupAddon addonType='prepend'>
+                https://youtube.com/watch?v=
+              </InputGroupAddon>
               <Input value={this.state.linkInput} onChange={this.handleInput} />
               <InputGroupAddon addonType='append'>
                 <Button color='primary' onClick={this.handleSave}>Save Vid</Button>
