@@ -12,9 +12,7 @@ if (process.env.NODE_ENV == null) {
 module.exports = {
   mode: process.env.NODE_ENV,
   devtool: false,
-  entry: {
-    menu: resolve('src/menu.js')
-  },
+  entry: resolve('src/menu.js'),
   output: {
     path: resolve('build'),
     filename: '[name].build.js'
@@ -35,6 +33,10 @@ module.exports = {
         options: {
           name: '[name].[ext]'
         }
+      },
+      {
+        test: /\.css$/,
+        loaders: ['style-loader', 'css-loader']
       }
     ]
   },
@@ -43,7 +45,6 @@ module.exports = {
       'NODE_ENV'
     ]),
     new HtmlWebpackPlugin({
-      filename: 'menu.html',
       template: resolve('src/menu.html')
     })
   ]
