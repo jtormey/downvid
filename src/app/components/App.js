@@ -1,5 +1,3 @@
-import 'bootstrap/dist/css/bootstrap.min.css'
-
 import React from 'react'
 import { Container, Row, Col, InputGroup, InputGroupAddon, Input, Button } from 'reactstrap'
 import { fetchMeta } from '../network'
