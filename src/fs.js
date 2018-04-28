@@ -49,6 +49,10 @@ export const createFileWriter = (fs, name) => new Promise((resolve, reject) => {
   }, reject)
 })
 
+export const fileExists = (fs, name) => new Promise((resolve, reject) => {
+  fs.root.getFile(name, {}, () => resolve(true), () => resolve(false))
+})
+
 export const readFile = (fs, name) => new Promise((resolve, reject) => {
   fs.root.getFile(name, {}, (fileEntry) => {
     fileEntry.file((file) => {

@@ -1,13 +1,12 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import React from 'react'
-import { Modal, Container, Row, Col, InputGroup, InputGroupAddon, Input, Button, Card, CardBody, CardImg, CardTitle, CardSubtitle } from 'reactstrap'
-import { download, fetchMeta } from '../network'
-import { requestFs, readFile, rmFile, createFileWriter } from '../fs'
+import { Modal, Container, Row, Col, InputGroup, InputGroupAddon, Input, Button } from 'reactstrap'
+import { fetchMeta } from '../network'
+import { requestFs, readFile, rmFile } from '../fs'
+import VideoCard from './VideoCard'
 
 const LS_KEY = 'downvid-library'
-
-const renderTime = (sec) => `${Math.floor(sec / 60)}:${sec % 60}`
 
 const vidWrapperStyle = {
   position: 'absolute',
@@ -23,36 +22,18 @@ const vidWrapperStyle = {
   justifyContent: 'center'
 }
 
-const vidTimeTag = {
-  position: 'absolute',
-  right: 0,
-  bottom: 0,
-  margin: 4,
-  padding: '0px 4px',
-  opacity: 0.8,
-  color: 'hsl(0, 0%, 100%)',
-  background: 'hsl(0, 0%, 6.7%)'
-}
-
 class App extends React.Component {
   state = {
     linkInput: '',
     library: [],
     playing: false,
-    vidsrc: null,
-    downloading: false,
-    progress: 0
+    vidsrc: null
   }
 
   componentDidMount = async () => {
     this.fs = await requestFs()
     let library = JSON.parse(localStorage.getItem(LS_KEY) || '[]')
     this.setState({ library })
-    window.onbeforeunload = () => this.state.downloading || null
-  }
-
-  componentWillUnmount = () => {
-    window.onbeforeunload = () => null
   }
 
   handleInput = (event) => {
@@ -61,39 +42,9 @@ class App extends React.Component {
 
   handleSave = async () => {
     let vid = this.state.linkInput
-    this.setState({ linkInput: '', downloading: true })
+    this.setState({ linkInput: '' })
     let meta = await fetchMeta(vid)
     this.mapLib((library) => [meta, ...this.state.library])
-
-    let res = await download(vid)
-    let writer = await createFileWriter(this.fs, `${vid}.mp4`)
-
-    let pipe = (r, w, totalLength, progress) => {
-      let pipeInner = (accLength) => {
-        progress(accLength / totalLength)
-        return r.read().then(({ done, value }) => {
-          if (done) {
-            progress(1)
-            return Promise.resolve()
-          } else {
-            return w.write(new Blob([value])).then(() => (
-              pipeInner(accLength + value.length)
-            ))
-          }
-        })
-      }
-
-      return pipeInner(0)
-    }
-
-    await pipe(
-      res.body.getReader(),
-      writer,
-      parseInt(res.headers.get('Content-Length')),
-      (progress) => this.setState({ progress })
-    )
-
-    this.setState({ downloading: false })
   }
 
   playVideo = async (vid) => {
@@ -139,21 +90,7 @@ class App extends React.Component {
         <Row style={{ marginTop: 32 }}>
           {this.state.library.map((entry) => (
             <Col key={entry.vid} md={4} sm={12} style={{ marginBottom: 32 }}>
-              <Card>
-                <div style={{ position: 'relative' }}>
-                  <CardImg top src={entry.thumbnail.url} width={entry.thumbnail.width} height={entry.thumbnail.height} />
-                  <div style={vidTimeTag}><span>{renderTime(entry.length)}</span></div>
-                </div>
-                <CardBody>
-                  <CardTitle>{entry.title}</CardTitle>
-                  <CardSubtitle>{entry.author.name}</CardSubtitle>
-                  <h3>Progress: {Math.round(this.state.progress * 100)}%</h3>
-                  <div style={{ marginTop: 16 }}>
-                    <Button color='primary' block onClick={() => this.playVideo(entry.vid)}>Play</Button>
-                    <Button color='secondary' block onClick={() => this.deleteVideo(entry.vid)}>Delete</Button>
-                  </div>
-                </CardBody>
-              </Card>
+              <VideoCard fs={this.fs} video={entry} onPlay={this.playVideo} onDelete={this.deleteVideo} />
             </Col>
           ))}
         </Row>
