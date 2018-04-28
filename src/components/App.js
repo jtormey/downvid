@@ -1,20 +1,35 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import React from 'react'
-import { Container, Row, Col, InputGroup, InputGroupAddon, Input, Button, Card, CardBody, CardImg, CardTitle } from 'reactstrap'
+import { Modal, Container, Row, Col, InputGroup, InputGroupAddon, Input, Button, Card, CardBody, CardImg, CardTitle } from 'reactstrap'
 import { download } from '../network'
-import { requestFs, readDir, writeFile } from '../fs'
+import { requestFs, readDir, writeFile, readFile } from '../fs'
+
+const vidWrapperStyle = {
+  position: 'absolute',
+  zIndex: 100000000,
+  top: 0,
+  bottom: 0,
+  left: 0,
+  right: 0,
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center'
+}
 
 class App extends React.Component {
   state = {
     linkInput: '',
-    entries: []
+    entries: [],
+    playing: false,
+    vidsrc: null
   }
 
   componentDidMount = async () => {
     this.fs = await requestFs()
-    let entries = await readDir(this.fs)
-    this.setState({ entries })
+    await this.listEntries()
   }
 
   handleInput = (event) => {
@@ -23,8 +38,24 @@ class App extends React.Component {
 
   handleSave = async () => {
     let input = this.state.linkInput
+    this.setState({ linkInput: '' })
     let mp4 = await download(input)
     await writeFile(this.fs, `${input}.mp4`, mp4)
+    await this.listEntries()
+  }
+
+  listEntries = async () => {
+    let entries = await readDir(this.fs)
+    this.setState({ entries })
+  }
+
+  playVideo = async (name) => {
+    let vidsrc = await readFile(this.fs, name)
+    this.setState({ playing: true, vidsrc })
+  }
+
+  closePlayer = () => {
+    this.setState({ playing: false })
   }
 
   render () {
@@ -52,12 +83,20 @@ class App extends React.Component {
                 <CardImg top width='100%' src='https://placeholdit.imgix.net/~text?txtsize=33&txt=318%C3%97180&w=318&h=180' alt='Card image cap' />
                 <CardBody>
                   <CardTitle>{entry.name}</CardTitle>
-                  <Button color='primary' block>Play</Button>
+                  <Button color='primary' block onClick={() => this.playVideo(entry.name)}>Play</Button>
                 </CardBody>
               </Card>
             </Col>
           ))}
         </Row>
+        <Modal isOpen={this.state.playing} toggle={this.closePlayer} />
+        {this.state.playing && (
+          <div style={vidWrapperStyle} onClick={this.closePlayer}>
+            <video controls style={{ height: '90%' }}>
+              <source src={this.state.vidsrc} type='video/mp4' />
+            </video>
+          </div>
+        )}
       </Container>
     )
   }
