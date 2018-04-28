@@ -12,7 +12,7 @@ if (process.env.NODE_ENV == null) {
 module.exports = {
   mode: process.env.NODE_ENV,
   devtool: false,
-  entry: resolve('src/menu.js'),
+  entry: resolve('src/app/menu.js'),
   output: {
     path: resolve('build'),
     filename: '[name].build.js'
@@ -45,7 +45,7 @@ module.exports = {
       'NODE_ENV'
     ]),
     new HtmlWebpackPlugin({
-      template: resolve('src/menu.html')
+      template: resolve('src/app/menu.html')
     })
   ]
 }

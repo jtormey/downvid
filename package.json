@@ -1,10 +1,10 @@
 {
   "name": "downvid",
   "version": "0.1.0",
-  "main": "index.js",
+  "main": "src/server/index.js",
   "author": "Justin Tormey <jrtormey@gmail.com>",
   "scripts": {
-    "serve": "node src",
+    "serve": "node src/server",
     "start": "webpack-dev-server",
     "build": "webpack-cli"
   },

@@ -1,4 +1,4 @@
-import '../manifest.json'
+import '../../manifest.json'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './components/App'
