@@ -22,6 +22,7 @@ class App extends React.Component {
 
   handleSubmit = async (vid) => {
     let meta = await fetchMeta(vid)
+    if (this.state.library.find((entry) => entry.vid === vid) != null) return
     this.mapLib((library) => [meta, ...this.state.library])
   }
 
