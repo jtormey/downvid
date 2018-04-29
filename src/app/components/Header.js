@@ -28,10 +28,7 @@ class Header extends React.Component {
         </Col>
         <Col md={6} style={{ display: 'flex', alignItems: 'center' }}>
           <InputGroup>
-            <InputGroupAddon addonType='prepend'>
-              https://youtube.com/watch?v=
-            </InputGroupAddon>
-            <Input value={query} onChange={this.handleInput} />
+            <Input value={query} onChange={this.handleInput} placeholder='https://youtube.com/watch?v=' />
             <InputGroupAddon addonType='append'>
               <Button color='primary' disabled={!validVid(query)} onClick={this.handleSubmit}>Save Vid</Button>
             </InputGroupAddon>
