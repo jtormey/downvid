@@ -15,6 +15,7 @@ module.exports = {
   entry: resolve('src/app/menu.js'),
   output: {
     path: resolve('build'),
+    publicPath: process.env.PUBLIC_PATH || '/',
     filename: '[name].build.js'
   },
   module: {
