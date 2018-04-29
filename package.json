@@ -6,7 +6,10 @@
   "scripts": {
     "serve": "node src/server",
     "start": "webpack-dev-server",
-    "build": "webpack-cli"
+    "build": "webpack-cli",
+    "pm2.start": "pm2 start src/server/index.js --name downvid",
+    "pm2.restart": "pm2 restart downvid",
+    "pm2.stop": "pm2 stop downvid"
   },
   "standard": {
     "parser": "babel-eslint",
