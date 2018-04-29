@@ -1,4 +1,7 @@
+const fs = require('fs')
 const path = require('path')
+const http = require('http')
+const https = require('https')
 const express = require('express')
 const ytdl = require('ytdl-core')
 const env = require('node-env-file')
@@ -7,10 +10,20 @@ env('.env')
 
 const {
   NODE_ENV,
-  PORT
+  PORT,
+  CERT_PATH,
+  KEY_PATH
 } = process.env
 
+let ssl = null
+if (CERT_PATH && KEY_PATH) {
+  ssl = {}
+  ssl.cert = fs.readFileSync(CERT_PATH)
+  ssl.key = fs.readFileSync(KEY_PATH)
+}
+
 const app = express()
+const server = ssl ? https.createServer(ssl, app) : http.createServer(app)
 
 const last = (xs) => xs[xs.length - 1]
 const createYtUrl = (vid) => `https://www.youtube.com/watch?v=${vid}`
@@ -60,6 +73,6 @@ app.get('/download', (req, res) => {
   stream.once('progress', writeContentLengthHeader)
 })
 
-app.listen(PORT, () => {
-  console.log(`downvid server listening on ${PORT} in ${NODE_ENV} mode`)
+server.listen(PORT, () => {
+  console.log(`downvid ${ssl ? 'secure ' : ''}server listening on ${PORT} in ${NODE_ENV} mode`)
 })
