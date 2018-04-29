@@ -1,6 +1,9 @@
 import React from 'react'
 import { Col, InputGroup, InputGroupAddon, Input, Button } from 'reactstrap'
 
+const URL_VID = /^(https?:\/\/www\.youtube\.com\/watch\?v=)?([a-zA-Z0-9\-_]{11})$/
+const validVid = (s) => ((res) => res && res[2])(s.match(URL_VID))
+
 class Header extends React.Component {
   state = {
     query: ''
@@ -17,6 +20,7 @@ class Header extends React.Component {
   }
 
   render () {
+    let { query } = this.state
     return (
       <React.Fragment>
         <Col md={6}>
@@ -27,9 +31,9 @@ class Header extends React.Component {
             <InputGroupAddon addonType='prepend'>
               https://youtube.com/watch?v=
             </InputGroupAddon>
-            <Input value={this.state.query} onChange={this.handleInput} />
+            <Input value={query} onChange={this.handleInput} />
             <InputGroupAddon addonType='append'>
-              <Button color='primary' onClick={this.handleSubmit}>Save Vid</Button>
+              <Button color='primary' disabled={!validVid(query)} onClick={this.handleSubmit}>Save Vid</Button>
             </InputGroupAddon>
           </InputGroup>
         </Col>
