@@ -2,7 +2,8 @@ import React from 'react'
 import { Col, InputGroup, InputGroupAddon, Input, Button } from 'reactstrap'
 
 const URL_VID = /^(https?:\/\/www\.youtube\.com\/watch\?v=)?([a-zA-Z0-9\-_]{11})$/
-const validVid = (s) => ((res) => res && res[2])(s.match(URL_VID))
+const isValidVid = (s) => URL_VID.test(s)
+const parseVid = (s) => ((res) => res && res[2])(s.match(URL_VID))
 
 class Header extends React.Component {
   state = {
@@ -16,7 +17,7 @@ class Header extends React.Component {
   handleSubmit = () => {
     let { query } = this.state
     this.setState({ query: '' })
-    this.props.onSubmit(query)
+    if (isValidVid(query)) this.props.onSubmit(parseVid(query))
   }
 
   render () {
@@ -30,7 +31,7 @@ class Header extends React.Component {
           <InputGroup>
             <Input value={query} onChange={this.handleInput} placeholder='https://youtube.com/watch?v=' />
             <InputGroupAddon addonType='append'>
-              <Button color='primary' disabled={!validVid(query)} onClick={this.handleSubmit}>Save Vid</Button>
+              <Button color='primary' disabled={!isValidVid(query)} onClick={this.handleSubmit}>Save Vid</Button>
             </InputGroupAddon>
           </InputGroup>
         </Col>
