@@ -1,11 +1,23 @@
+const path = require('path')
 const express = require('express')
 const ytdl = require('ytdl-core')
+const env = require('node-env-file')
 
-const PORT = 8081
+env('.env')
+
+const {
+  NODE_ENV,
+  PORT
+} = process.env
+
 const app = express()
 
 const last = (xs) => xs[xs.length - 1]
 const createYtUrl = (vid) => `https://www.youtube.com/watch?v=${vid}`
+
+if (NODE_ENV === 'production') {
+  app.use(express.static(path.resolve(__dirname, '../../build')))
+}
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
@@ -49,5 +61,5 @@ app.get('/download', (req, res) => {
 })
 
 app.listen(PORT, () => {
-  console.log(`downvid server listening on ${PORT}`)
+  console.log(`downvid server listening on ${PORT} in ${NODE_ENV} mode`)
 })
