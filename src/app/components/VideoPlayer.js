@@ -1,5 +1,6 @@
 import React from 'react'
 import { Modal } from 'reactstrap'
+import { LoadVideoSrc } from './LibraryService'
 
 const vidWrapperStyle = {
   position: 'absolute',
@@ -16,23 +17,32 @@ const vidWrapperStyle = {
 }
 
 class VideoPlayer extends React.Component {
+  state = {
+    videoSrc: null
+  }
+
   videoRef = React.createRef()
 
   componentDidUpdate () {
-    if (this.props.src && this.videoRef.current && this.videoRef.current.paused) {
+    if (this.state.videoSrc && this.videoRef.current && this.videoRef.current.paused) {
       this.videoRef.current.play()
     }
   }
 
   render () {
-    let { src, onClose } = this.props
+    let { vid, onClose } = this.props
+    let { videoSrc } = this.state
     return (
       <React.Fragment>
-        <Modal isOpen={src != null} toggle={onClose} />
-        {src != null && (
+        <LoadVideoSrc
+          vid={vid}
+          onLoad={({ videoSrc }) => this.setState({ videoSrc })}
+        />
+        <Modal isOpen={videoSrc != null} toggle={onClose} />
+        {videoSrc != null && (
           <div style={vidWrapperStyle} onClick={onClose}>
             <video ref={this.videoRef} controls style={{ height: '90%' }}>
-              <source src={src} type='video/mp4' />
+              <source src={videoSrc} type='video/mp4' />
             </video>
           </div>
         )}
