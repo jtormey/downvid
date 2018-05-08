@@ -15,6 +15,9 @@ const {
   KEY_PATH
 } = process.env
 
+// https://github.com/fent/node-ytdl-core/blob/cf2120e892d070a10a7d85595ffcc32643860351/lib/formats.js
+const VIDEO_QUALITY = 18 // 360p
+
 let ssl = null
 if (CERT_PATH && KEY_PATH) {
   ssl = {}
@@ -63,7 +66,7 @@ app.get('/meta', (req, res) => {
 })
 
 app.get('/download', (req, res) => {
-  let stream = ytdl(createYtUrl(req.query.vid))
+  let stream = ytdl(createYtUrl(req.query.vid), { quality: VIDEO_QUALITY })
 
   let writeContentLengthHeader = (chunkLength, progress, total) => {
     res.header('Content-Length', total)
