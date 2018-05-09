@@ -1,9 +1,9 @@
 export const fetchMeta = (vid) => (
-  fetch(`${process.env.ROOT_URL}/meta?vid=${vid}`).then(res => res.json())
+  fetch(`/meta?vid=${vid}`).then(res => res.json())
 )
 
 export const download = (vid) => (
-  fetch(`${process.env.ROOT_URL}/download?vid=${vid}`)
+  fetch(`/download?vid=${vid}`)
 )
 
 export const downloadImg = (url) => (

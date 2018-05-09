@@ -2,6 +2,7 @@ const path = require('path')
 const webpack = require('webpack')
 const env = require('node-env-file')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const configureRoutes = require('./src/server/configure-routes')
 
 let resolve = (f) => path.resolve(__dirname, f)
 
@@ -43,11 +44,16 @@ module.exports = {
   },
   plugins: [
     new webpack.EnvironmentPlugin([
-      'NODE_ENV',
-      'ROOT_URL'
+      'NODE_ENV'
     ]),
     new HtmlWebpackPlugin({
       template: resolve('src/app/menu.html')
     })
-  ]
+  ],
+  devServer: {
+    port: process.env.PORT,
+    before (app) {
+      configureRoutes(app)
+    }
+  }
 }
