@@ -37,6 +37,13 @@ module.exports = {
         }
       },
       {
+        test: /\.static\./,
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]'
+        }
+      },
+      {
         test: /\.css$/,
         loaders: ['style-loader', 'css-loader']
       }

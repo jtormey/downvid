@@ -14,6 +14,8 @@
   "standard": {
     "parser": "babel-eslint",
     "globals": [
+      "self",
+      "caches",
       "fetch",
       "localStorage",
       "Blob",
