@@ -3,7 +3,8 @@ const log = (...args) => console.log('[ServiceWorker]:', ...args)
 
 const cacheUrls = [
   '/',
-  '/main.build.js'
+  '/main.build.js',
+  '/service-worker.static.js'
 ]
 
 self.addEventListener('install', (event) => {
