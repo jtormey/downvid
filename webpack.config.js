@@ -52,7 +52,7 @@ module.exports = {
   plugins: [
     new webpack.EnvironmentPlugin([
       'NODE_ENV',
-      'ROOT_PATH'
+      'PUBLIC_PATH'
     ]),
     new HtmlWebpackPlugin({
       template: resolve('src/app/menu.html')
