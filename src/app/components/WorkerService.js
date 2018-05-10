@@ -7,7 +7,7 @@ class WorkerService extends React.Component {
   }
 
   componentDidMount () {
-    if (swManager.canUseServiceWorker()) {
+    if (navigator.online && swManager.canUseServiceWorker()) {
       swManager.install()
         .then(() => this.setState({ installed: true }))
         .catch((error) => console.error(error))
