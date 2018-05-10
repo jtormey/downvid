@@ -16,7 +16,6 @@ module.exports = {
   entry: resolve('src/app/menu.js'),
   output: {
     path: resolve('build'),
-    publicPath: process.env.PUBLIC_PATH || '/',
     filename: '[name].build.js'
   },
   module: {
@@ -51,8 +50,7 @@ module.exports = {
   },
   plugins: [
     new webpack.EnvironmentPlugin([
-      'NODE_ENV',
-      'PUBLIC_PATH'
+      'NODE_ENV'
     ]),
     new HtmlWebpackPlugin({
       template: resolve('src/app/menu.html')

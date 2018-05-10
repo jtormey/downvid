@@ -4,9 +4,7 @@ const log = (...args) => console.log('[ServiceWorker]:', ...args)
 const cacheUrls = [
   '/',
   '/main.build.js'
-].map((path) =>
-  process.env.PUBLIC_PATH + path
-)
+]
 
 self.addEventListener('install', (event) => {
   log('Installed service worker')
