@@ -11,6 +11,8 @@ class WorkerService extends React.Component {
       swManager.install()
         .then(() => this.setState({ installed: true }))
         .catch((error) => console.error(error))
+    } else {
+      this.setState({ installed: true })
     }
   }
 
