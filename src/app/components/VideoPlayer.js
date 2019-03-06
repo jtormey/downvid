@@ -3,7 +3,7 @@ import { Modal } from 'reactstrap'
 import { LoadVideoSrc } from './LibraryService'
 
 const vidWrapperStyle = {
-  position: 'absolute',
+  position: 'fixed',
   zIndex: 100000000,
   top: 0,
   bottom: 0,
