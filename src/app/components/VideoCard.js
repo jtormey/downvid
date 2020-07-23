@@ -1,8 +1,8 @@
 import React from 'react'
-import { Button, Progress, Card, CardBody, CardImg, CardTitle, CardSubtitle } from 'reactstrap'
+import { Button, Progress, Card, CardBody, CardImg, CardTitle, CardSubtitle, CardText } from 'reactstrap'
 import { DownloadVideo } from './LibraryService'
 
-const renderTime = (sec) => `${Math.floor(sec / 60)}:${sec % 60}`
+const renderTime = (sec) => new Date(sec * 1000).toISOString().substr(11, 8).replace(/(0+:?)*/, '')
 
 const vidTimeTag = {
   position: 'absolute',
@@ -18,7 +18,7 @@ const vidTimeTag = {
 const VideoCard = ({ video, onPlay, onDelete }) => (
   <Card>
     <div style={{ position: 'relative' }}>
-      <CardImg top src={video.thumbnail.url} width={video.thumbnail.width} height={video.thumbnail.height} />
+      <CardImg top src={video.thumbnail.url} />
       <div style={vidTimeTag}>
         <span>{renderTime(video.length)}</span>
       </div>
@@ -33,7 +33,10 @@ const VideoCard = ({ video, onPlay, onDelete }) => (
             <Progress value={Math.round(progress * 100)} />
           )}
           renderError={() => (
-            <CardSubtitle>Error streaming video</CardSubtitle>
+            <React.Fragment>
+              <CardText className='text-danger'>Error streaming video</CardText>
+              <Button color='secondary' block onClick={() => onDelete(video.vid)}>Delete</Button>
+            </React.Fragment>
           )}
           renderComplete={() => (
             <React.Fragment>
