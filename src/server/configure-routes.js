@@ -1,3 +1,4 @@
+const morgan = require('morgan')
 const ytdl = require('ytdl-core')
 
 // https://github.com/fent/node-ytdl-core/blob/cf2120e892d070a10a7d85595ffcc32643860351/lib/formats.js
@@ -7,6 +8,8 @@ const last = (xs) => xs[xs.length - 1]
 const createYtUrl = (vid) => `https://www.youtube.com/watch?v=${vid}`
 
 module.exports = (app) => {
+  app.use(morgan('tiny'))
+
   app.get('/meta', (req, res) => {
     ytdl.getInfo(createYtUrl(req.query.vid)).then((meta) => {
       res.status(200).json({
