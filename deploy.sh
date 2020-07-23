@@ -1,11 +1,11 @@
 echo "\n>>> updating node modules\n"
-npm install
+yarn install --ignore-engines
 
 echo "\n>>> building client application\n"
 rm -rf ./build
-npm run build
+yarn build
 
 echo "\n>>> restarting server\n"
-npm run pm2.restart
+yarn pm2.restart
 
 echo "\n>>> deployed\n"
