@@ -32,6 +32,9 @@ const VideoCard = ({ video, onPlay, onDelete }) => (
           renderProgress={({ progress }) => (
             <Progress value={Math.round(progress * 100)} />
           )}
+          renderError={() => (
+            <CardSubtitle>Error streaming video</CardSubtitle>
+          )}
           renderComplete={() => (
             <React.Fragment>
               <Button color='primary' block onClick={() => onPlay(video.vid)}>Play</Button>

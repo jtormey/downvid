@@ -34,9 +34,13 @@ class LibraryService extends React.Component {
   }
 
   addVideo = async (vid) => {
-    let meta = await fetchMeta(vid)
-    if (this.state.library.find((entry) => entry.vid === vid) != null) return
-    this.map((library) => [meta, ...this.state.library])
+    try {
+      let meta = await fetchMeta(vid)
+      if (this.state.library.find((entry) => entry.vid === vid) != null) return
+      this.map((library) => [meta, ...this.state.library])
+    } catch (error) {
+      console.error(`Error adding video:`, error)
+    }
   }
 
   removeVideo = async (vid) => {
@@ -116,6 +120,7 @@ export const LoadVideoSrc = (props) => (
 export class VideoDownloader extends React.Component {
   state = {
     progress: 0,
+    error: false,
     downloaded: false
   }
 
@@ -136,16 +141,24 @@ export class VideoDownloader extends React.Component {
 
   streamVideo = async (vid) => {
     this.lockWindow()
-    let onProgress = (progress) => this.setState({ progress })
-    await this.props.download(vid, { onProgress })
-    setTimeout(() => this.setState({ downloaded: true }), 500)
-    this.unlockWindow()
+    try {
+      let onProgress = (progress) => this.setState({ progress })
+      await this.props.download(vid, { onProgress })
+      setTimeout(() => this.setState({ downloaded: true }), 500)
+    } catch (error) {
+      console.error(`Error downloading video:`, error)
+      this.setState({ error: true })
+    } finally {
+      this.unlockWindow()
+    }
   }
 
   render () {
-    let { progress, downloaded } = this.state
+    let { progress, error, downloaded } = this.state
     if (downloaded) {
       return this.props.renderComplete()
+    } else if (error) {
+      return this.props.renderError()
     } else {
       return this.props.renderProgress({ progress })
     }
